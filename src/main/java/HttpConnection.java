@@ -22,24 +22,22 @@ public class HttpConnection {
         String response = http.sendGet("http://www.booking.com/index.en-gb.html?sid=664b9babd5b4e66c0216083e996ba341;dcid=1");
         http.getUrls(response);
         //Set for not viewed urls
-        HashSet<String> urlsNV = new HashSet<String>(http.urls);
+        HashSet<String> notViewedUrls = new HashSet<String>(http.urls);
         //Set for viewed urls
-        HashSet<String> urlsV = new HashSet<String>();
-        while (!urlsNV.isEmpty()){
-            Iterator<String> itr = urlsNV.iterator();
-            String element = itr.next();
-            http.sendGet(element);
-            http.getUrls(response);
-            urlsV.add(element);
-            urlsNV.remove(element);
-            for (String el:http.urls) {
-                if (!urlsV.contains(el)) {
-                    urlsNV.add(el);
-                }
-            }
+        HashSet<String> viewedUrls = new HashSet<String>();
+        while (!notViewedUrls.isEmpty()){
+            String element = notViewedUrls.iterator().next();
+         //   System.out.println(element);
+            ArrayList<String> newUrls = http.getUrls(http.sendGet(element));
+            HashSet<String> newUrlsSet = new HashSet<String>(newUrls);
+            newUrlsSet.removeAll(viewedUrls);
+            newUrlsSet.removeAll(notViewedUrls);
+            notViewedUrls.addAll(newUrlsSet);
+            viewedUrls.add(element);
+            notViewedUrls.remove(element);
         }
 
-        Iterator<String> itr2 = urlsNV.iterator();
+        Iterator<String> itr2 = viewedUrls.iterator();
         while (itr2.hasNext()) {
             System.out.println(itr2.next().toString());
         }
@@ -78,7 +76,7 @@ public class HttpConnection {
 
     }
 
-    private void getUrls(String response) throws Exception {
+    private ArrayList<String> getUrls(String response) throws Exception {
         //get domain
         //Pattern p1 = Pattern.compile(".*?([^.]+\\.[^.]+)");
         URI uri = new URI(this.url);
@@ -116,6 +114,6 @@ public class HttpConnection {
             urlRelative = m4.group(1);
             urls.add("http://" + domainurl + urlRelative);
         }
-
+        return urls;
     }
 }
