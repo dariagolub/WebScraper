@@ -16,16 +16,30 @@ public class HttpConnection {
     String domainurl;
     ArrayList<String> urls = new ArrayList<String>();
 
-
-
     public static void main(String[] args) throws Exception {
 
         HttpConnection http = new HttpConnection();
         String response = http.sendGet("http://www.booking.com/index.en-gb.html?sid=664b9babd5b4e66c0216083e996ba341;dcid=1");
         http.getUrls(response);
-        HashSet<String> urlsSet = new HashSet<String>(http.urls);
+        //Set for not viewed urls
+        HashSet<String> urlsNV = new HashSet<String>(http.urls);
+        //Set for viewed urls
+        HashSet<String> urlsV = new HashSet<String>();
+        while (!urlsNV.isEmpty()){
+            Iterator<String> itr = urlsNV.iterator();
+            String element = itr.next();
+            http.sendGet(element);
+            http.getUrls(response);
+            urlsV.add(element);
+            urlsNV.remove(element);
+            for (String el:http.urls) {
+                if (!urlsV.contains(el)) {
+                    urlsNV.add(el);
+                }
+            }
+        }
 
-        Iterator<String> itr2 = urlsSet.iterator();
+        Iterator<String> itr2 = urlsNV.iterator();
         while (itr2.hasNext()) {
             System.out.println(itr2.next().toString());
         }
@@ -48,8 +62,8 @@ public class HttpConnection {
         con.setRequestProperty("User-Agent", USER_AGENT);
 
         int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode);
+  //      System.out.println("\nSending 'GET' request to URL : " + url);
+  //      System.out.println("Response Code : " + responseCode);
 
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(con.getInputStream()));
@@ -72,7 +86,7 @@ public class HttpConnection {
         //m1.find();
         domainurl = uri.getHost();
 
-        System.out.println("Domain name for url: '" + this.url + "' is: " + domainurl);
+    //    System.out.println("Domain name for url: '" + this.url + "' is: " + domainurl);
 
         //search absolute urls inside page
 
@@ -100,7 +114,7 @@ public class HttpConnection {
         String urlRelative;
         while (m4.find()) {
             urlRelative = m4.group(1);
-            urls.add("http://" + domainurl+urlRelative);
+            urls.add("http://" + domainurl + urlRelative);
         }
 
     }
