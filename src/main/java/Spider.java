@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
@@ -16,39 +17,42 @@ public class Spider {
     HashMap<String,Integer> wordsStat = new HashMap<String, Integer>();
 
     public void parse(String url, List<String> wordsList, String[] args) throws Exception {
+        try {
+            String response = this.sendGet(url);
+            this.getUrls(response);
 
-        String response = this.sendGet(url);
-        this.getUrls(response);
-
-        //Set for not viewed urls
-        HashSet<String> notViewedUrls = new HashSet<String>(this.urls);
-        //Set for viewed urls
-        HashSet<String> viewedUrls = new HashSet<String>();
-        while (!notViewedUrls.isEmpty()){
-            String currentUrl = notViewedUrls.iterator().next();
-            response = this.sendGet(currentUrl);
-            ArrayList<String> newUrls = this.getUrls(response);
-            HashSet<String> newUrlsSet = new HashSet<String>(newUrls);
-            newUrlsSet.removeAll(viewedUrls);
-            newUrlsSet.removeAll(notViewedUrls);
-            notViewedUrls.addAll(newUrlsSet);
-            viewedUrls.add(currentUrl);
-            StringBuilder sb = new StringBuilder();
-            sb.append(currentUrl);
-            if(Arrays.asList(args).contains("-c")) {
-                sb.append(" Number of characters on this page is ").append(response.length());
-            }
-            if(Arrays.asList(args).contains("-w")) {
-                sb.append(" Number of provided word(s) occurrence on webpage is ").append(this.getWordStat(response, wordsList));
-            }
+            //Set for not viewed urls
+            HashSet<String> notViewedUrls = new HashSet<String>(this.urls);
+            //Set for viewed urls
+            HashSet<String> viewedUrls = new HashSet<String>();
+            while (!notViewedUrls.isEmpty()) {
+                String currentUrl = notViewedUrls.iterator().next();
+                response = this.sendGet(currentUrl);
+                ArrayList<String> newUrls = this.getUrls(response);
+                HashSet<String> newUrlsSet = new HashSet<String>(newUrls);
+                newUrlsSet.removeAll(viewedUrls);
+                newUrlsSet.removeAll(notViewedUrls);
+                notViewedUrls.addAll(newUrlsSet);
+                viewedUrls.add(currentUrl);
+                StringBuilder sb = new StringBuilder();
+                sb.append(currentUrl);
+                if (Arrays.asList(args).contains("-c")) {
+                    sb.append(" Number of characters on this page is ").append(response.length());
+                }
+                if (Arrays.asList(args).contains("-w")) {
+                    sb.append(" Number of provided word(s) occurrence on webpage is ").append(this.getWordStat(response, wordsList));
+                }
          /*   if(Arrays.asList(args).contains("-e")) {
                 sb.append(" Sentences with given words ").append(this.getSentences(response, wordsList));
             }*/
-            System.out.println(sb.toString());
-           // System.out.println(currentUrl + " Number of characters on this page is " + response.length() + " Number of provided word(s) occurrence on webpage is " + this.getWordStat(response, wordsList) + this.getSentences(response, wordsList));
-            notViewedUrls.remove(currentUrl);
-            newUrls.clear();
-            newUrlsSet.clear();
+                System.out.println(sb.toString());
+                // System.out.println(currentUrl + " Number of characters on this page is " + response.length() + " Number of provided word(s) occurrence on webpage is " + this.getWordStat(response, wordsList) + this.getSentences(response, wordsList));
+                notViewedUrls.remove(currentUrl);
+                newUrls.clear();
+                newUrlsSet.clear();
+            }
+        } catch (SocketException ex) {
+            System.out.println("Error reading response from server");
         }
     }
 
@@ -56,7 +60,6 @@ public class Spider {
     private String sendGet(String url) throws Exception {
 
         this.url = url;
-
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");
@@ -71,9 +74,7 @@ public class Spider {
             response.append(inputLine);
         }
         in.close();
-
         return response.toString();
-
     }
 
     private ArrayList<String> getUrls(String response) throws Exception {
@@ -109,9 +110,6 @@ public class Spider {
 
     private String getWordStat(String response, List<String > wordsList) throws Exception {
 
-        //this.wordsArray = wordsArray;
-        //wordsArray.add("car");
-        //wordsArray.add("person");
         String wordStatString = "";
 
         for (String el: wordsList) {
