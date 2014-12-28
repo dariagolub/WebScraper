@@ -25,5 +25,8 @@
         <module name="WebScraper" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="WebScraper" target="1.7" />
+    </bytecodeTargetLevel>
   </component>
 </project>
