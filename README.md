@@ -11,8 +11,8 @@ word (or list of words with “,” delimiter)
 
 count number of provided word(s) occurrence on webpage(s). (-w)
 count number of characters of each web page (-c)
-extract sentences’ which contain given words (-e)
-Data processing results printed to output for each web resources separately and for all resources as total.
+
+Data processing results printed to output for each web resources separately.
 
 Command line parameters example for Java implementation:
 
