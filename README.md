@@ -4,15 +4,16 @@ Console web scraper utility which:
 
 1) accepts as command line parameters:
 
-web resources URL or path to plain text file containing a list of URLs
+- web resources URL or path to plain text file containing a list of URLs
 data command(s)
-word (or list of words with “,” delimiter)
+- word (or list of words with “,” delimiter)
+
 2) supports the following data processing commands:
 
-count number of provided word(s) occurrence on webpage(s). (-w)
-count number of characters of each web page (-c)
-extract sentences’ which contain given words (-e)
-Data processing results printed to output for each web resources separately and for all resources as total.
+- count number of provided word(s) occurrence on webpage(s). (-w)
+- count number of characters of each web page (-c)
+
+Data processing results printed to output for each web resources separately.
 
 Command line parameters example for Java implementation:
 
